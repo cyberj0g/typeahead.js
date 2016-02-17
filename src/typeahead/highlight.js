@@ -29,10 +29,20 @@ var highlight = (function(doc) {
     }
 
     // support wrapping multiple patterns
-    o.pattern = _.isArray(o.pattern) ? o.pattern : [o.pattern];
+    if (_.isArray(o.pattern)) {
+        regex = getRegex(o.pattern, o.caseSensitive, o.wordsOnly);
+        traverse(o.node, hightlightTextNode);
+    } else {
+        // support highlighting separate words
 
-    regex = getRegex(o.pattern, o.caseSensitive, o.wordsOnly);
-    traverse(o.node, hightlightTextNode);
+        // split the coming words separated by space, filter so no blank space / undefined is stored
+        var array = _.filter(o.pattern.split(' '), Boolean);
+        var index, len;
+        for (index = 0, len = array.length; index < len; ++index) {
+            regex = getRegex([array[index]], o.caseSensitive, o.wordsOnly);
+            traverse(o.node, hightlightTextNode);
+        }
+    }
 
     function hightlightTextNode(textNode) {
       var match, patternNode, wrapperNode;
